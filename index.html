@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tharun</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <div id="app">
+
+    <!-- PAGE 1: WELCOME -->
+    <div id="welcomePage" class="page">
+      <div class="top-bar">
+        <button class="admin-btn" onclick="openAdminPinModal()">Admin Login</button>
+      </div>
+      <div class="welcome-body">
+        <div class="welcome-text">
+          <h1>Welcome</h1>
+          <h2>to</h2>
+          <h2>My</h2>
+          <h2>World</h2>
+        </div>
+        <button class="primary-btn enter-btn" onclick="showPage('loginPage')">Get Started</button>
+      </div>
+    </div>
+
+    <!-- PAGE 2: LOGIN -->
+    <div id="loginPage" class="page" style="display:none">
+      <div class="page-card">
+        <div class="card-title">Login</div>
+        <input type="email" id="loginEmail" placeholder="User Mail@email.com">
+        <input type="password" id="loginPass" placeholder="Password">
+        <button class="primary-btn" onclick="loginSubmit()">Login</button>
+        <div id="loginMsg" class="msg"></div>
+        <div class="page-links">
+          <a href="#" onclick="showPage('forgotPage')">Forgot Password?</a>
+          <a href="#" onclick="showPage('registerPage')">Create New Account</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 3: CREATE NEW ACCOUNT -->
+    <div id="registerPage" class="page" style="display:none">
+      <div class="page-card">
+        <div class="card-title">Create New Account</div>
+        <div class="two-col">
+          <div class="col">
+            <label>User Name</label>
+            <input type="text" id="regFullName" placeholder="Full Name">
+            <label>Mail ID</label>
+            <input type="email" id="regEmail" placeholder="Email">
+            <label>Confirm Mail ID <span class="must-match">must be match</span></label>
+            <input type="email" id="regEmailConfirm" placeholder="Confirm Email">
+            <label>Password</label>
+            <input type="password" id="regPass" placeholder="Password">
+            <label>Confirm Password <span class="must-match">must be match</span></label>
+            <input type="password" id="regPassConfirm" placeholder="Confirm Password">
+          </div>
+          <div class="col dob-col">
+            <label>Date of Birth</label>
+            <div class="dob-box">
+              <input type="text" id="dobDD" placeholder="DD" maxlength="2">
+              <span>/</span>
+              <input type="text" id="dobMM" placeholder="MM" maxlength="2">
+              <span>/</span>
+              <input type="text" id="dobYY" placeholder="YYYY" maxlength="4">
+            </div>
+          </div>
+        </div>
+        <button class="primary-btn" onclick="registerSubmit()">Create Account</button>
+        <div id="regMsg" class="msg"></div>
+        <div class="page-links">
+          <a href="#" onclick="showPage('loginPage')">Back to Login</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 4: FORGOT PASSWORD -->
+    <div id="forgotPage" class="page" style="display:none">
+      <div class="two-forgot">
+        <div class="page-card forgot-card">
+          <div class="card-title">Forgot Password</div>
+          <label>Register Mail ID</label>
+          <input type="email" id="forgotEmail" placeholder="Enter your registered email">
+          <button class="primary-btn" id="sendCodeBtn" onclick="sendVerificationCode()">Send</button>
+          <div id="forgotMsg" class="msg"></div>
+          <div class="page-links"><a href="#" onclick="showPage('loginPage')">Back to Login</a></div>
+        </div>
+        <div class="page-card forgot-card" id="resetCard" style="display:none">
+          <div class="card-title">Reset Password</div>
+          <label>Pin OTP</label>
+          <input type="text" id="verifyCode" placeholder="Enter 6-digit PIN">
+          <label>New Password</label>
+          <input type="password" id="newPass" placeholder="New Password">
+          <label>Confirm Password</label>
+          <input type="password" id="newPassConfirm" placeholder="Confirm Password">
+          <button class="primary-btn" onclick="resetPassword()">Reset Password</button>
+          <div id="resetMsg" class="msg"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 5: USER DASHBOARD -->
+    <div id="userPage" class="page" style="display:none">
+      <div class="dashboard-bar">
+        <span class="dash-logo">My Dashboard</span>
+        <button class="logout-btn" onclick="logoutUser()">Logout</button>
+      </div>
+      <div class="dash-body">
+        <div class="user-card">
+          <div class="user-avatar">&#128100;</div>
+          <h2 class="user-welcome">Welcome, <span id="uName-span"></span>!</h2>
+          <div class="user-info-grid">
+            <div class="info-box"><div class="info-label">Email</div><div class="info-value" id="uEmail"></div></div>
+            <div class="info-box"><div class="info-label">Date of Birth</div><div class="info-value" id="uDOB"></div></div>
+            <div class="info-box"><div class="info-label">Login Time</div><div class="info-value" id="uLoginTime"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN PIN MODAL -->
+    <div id="adminPinModal" class="modal-overlay" style="display:none">
+      <div class="modal-box">
+        <div class="modal-icon">&#128274;</div>
+        <div class="modal-title">Admin Security</div>
+        <div class="modal-sub">Enter your 4-digit security PIN to access the admin panel</div>
+        <div class="pin-dots">
+          <span class="pin-dot" id="dot0"></span>
+          <span class="pin-dot" id="dot1"></span>
+          <span class="pin-dot" id="dot2"></span>
+          <span class="pin-dot" id="dot3"></span>
+        </div>
+        <div class="pin-pad">
+          <button class="pin-key" onclick="pinPress('1')">1</button>
+          <button class="pin-key" onclick="pinPress('2')">2</button>
+          <button class="pin-key" onclick="pinPress('3')">3</button>
+          <button class="pin-key" onclick="pinPress('4')">4</button>
+          <button class="pin-key" onclick="pinPress('5')">5</button>
+          <button class="pin-key" onclick="pinPress('6')">6</button>
+          <button class="pin-key" onclick="pinPress('7')">7</button>
+          <button class="pin-key" onclick="pinPress('8')">8</button>
+          <button class="pin-key" onclick="pinPress('9')">9</button>
+          <button class="pin-key pin-clear" onclick="pinClear()">&#9003;</button>
+          <button class="pin-key" onclick="pinPress('0')">0</button>
+          <button class="pin-key pin-ok" onclick="pinSubmit()">&#10003;</button>
+        </div>
+        <div id="pinMsg" class="msg"></div>
+        <button class="modal-cancel" onclick="closePinModal()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- PAGE 6: ADMIN DASHBOARD -->
+    <div id="adminPage" class="page" style="display:none">
+      <div class="adm-navbar">
+        <div class="adm-brand">
+          <span class="adm-brand-icon">&#128200;</span>
+          <div>
+            <div class="adm-brand-title">Admin Analytics</div>
+            <div class="adm-brand-sub" id="adminDateTime"></div>
+          </div>
+        </div>
+        <div class="adm-nav-right">
+          <div class="adm-welcome">Welcome back, <strong id="adminName"></strong></div>
+          <button class="adm-logout" onclick="logoutAdmin()">Logout</button>
+        </div>
+      </div>
+      <div class="adm-body">
+        <div class="adm-kpi-row">
+          <div class="adm-kpi-card" style="--accent:#a78bfa">
+            <div class="adm-kpi-icon">&#128101;</div>
+            <div class="adm-kpi-data">
+              <div class="adm-kpi-num" id="statUsers">0</div>
+              <div class="adm-kpi-label">Total Users</div>
+            </div>
+            <div class="adm-kpi-trend up">Registered</div>
+          </div>
+          <div class="adm-kpi-card" style="--accent:#34d399">
+            <div class="adm-kpi-icon">&#128274;</div>
+            <div class="adm-kpi-data">
+              <div class="adm-kpi-num" id="statLogins">0</div>
+              <div class="adm-kpi-label">Total Logins</div>
+            </div>
+            <div class="adm-kpi-trend up">Sessions</div>
+          </div>
+          <div class="adm-kpi-card" style="--accent:#60a5fa">
+            <div class="adm-kpi-icon">&#128065;</div>
+            <div class="adm-kpi-data">
+              <div class="adm-kpi-num" id="statVisits">0</div>
+              <div class="adm-kpi-label">Total Visits</div>
+            </div>
+            <div class="adm-kpi-trend up">Page Views</div>
+          </div>
+          <div class="adm-kpi-card" style="--accent:#f472b6">
+            <div class="adm-kpi-icon">&#9889;</div>
+            <div class="adm-kpi-data">
+              <div class="adm-kpi-num" id="statActive">0</div>
+              <div class="adm-kpi-label">Active Now</div>
+            </div>
+            <div class="adm-kpi-trend" id="activeStatusLive">Live</div>
+          </div>
+        </div>
+        <div class="adm-charts-row">
+          <div class="adm-chart-card">
+            <div class="adm-chart-header">
+              <div class="adm-chart-title">Login Activity - Last 7 Sessions</div>
+              <div class="adm-chart-badge">Bar Chart</div>
+            </div>
+            <div class="adm-bar-chart" id="loginBarChart"></div>
+            <div class="adm-bar-labels" id="barChartLabels"></div>
+          </div>
+          <div class="adm-chart-card adm-donut-wrap">
+            <div class="adm-chart-header">
+              <div class="adm-chart-title">User Role Distribution</div>
+              <div class="adm-chart-badge">Donut</div>
+            </div>
+            <div class="adm-donut-area">
+              <div class="adm-donut" id="donutChart">
+                <div class="adm-donut-hole">
+                  <div class="adm-donut-center-num" id="donutTotal">0</div>
+                  <div class="adm-donut-center-label">Users</div>
+                </div>
+              </div>
+              <div class="adm-donut-legend" id="donutLegend"></div>
+            </div>
+          </div>
+        </div>
+        <div class="adm-bottom-row">
+          <div class="adm-table-card">
+            <div class="adm-chart-header">
+              <div class="adm-chart-title">Registered Users</div>
+              <div class="adm-chart-badge" id="userCountBadge">0 users</div>
+            </div>
+            <div class="adm-table-scroll">
+              <table class="adm-table">
+                <thead>
+                  <tr><th>#</th><th>Name</th><th>Email</th><th>DOB</th><th>Role</th><th>Action</th></tr>
+                </thead>
+                <tbody id="usersTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="adm-feed-card">
+            <div class="adm-chart-header">
+              <div class="adm-chart-title">Activity Feed</div>
+              <div class="adm-live-dot"><span class="live-pulse"></span> LIVE</div>
+            </div>
+            <div class="adm-feed" id="activityFeed"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
